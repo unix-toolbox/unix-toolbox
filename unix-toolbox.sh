@@ -13,18 +13,18 @@ export TOOLBOX_HOME=${TOOLBOX_HOME:-$(dirname $(realpath ${BASH_SOURCE[0]}))}
 export TOOLBOX_MODULES=${TOOLBOX_MODULES:-"$TOOLBOX_HOME/modules"}
 
 
+# internal state
+export __TOOLBOX_EXIT_CODE=0 # propagate error codes down the stack
+export __TOOLBOX_LOADED_MODULES=()
+export __TOOLBOX_LOADING_STACK=()
+
+
 # public api
 # usage: utb load <module-name>
 utb() {
   local command=$1
   [[ $command == "load" ]] && __utb_load_module $2
 }
-
-
-# internal state
-export __TOOLBOX_EXIT_CODE=0 # propagate error codes down the stack
-export __TOOLBOX_LOADED_MODULES=()
-export __TOOLBOX_DEPENDENCY_STACK=()
 
 
 # return 0 (found) or 1 (not found)
@@ -55,24 +55,24 @@ __utb_module_is_loaded() {
 
 # return 0 (circular dependency) or 1 (no circular dependency)
 __utb_module_is_circular() {
-  __utb_array_contains "$1" "${__TOOLBOX_DEPENDENCY_STACK[@]}"
+  __utb_array_contains "$1" "${__TOOLBOX_LOADING_STACK[@]}"
 }
 
 __utb_add_module_to_stack() {
   local module_name="$1"
-  __TOOLBOX_DEPENDENCY_STACK+=("$module_name")
+  __TOOLBOX_LOADING_STACK+=("$module_name")
 }
 
 __utb_remove_module_from_stack() {
   local module_name="$1"
   local i tempAry=()
-  for i in "${!__TOOLBOX_DEPENDENCY_STACK[@]}"; do
-    local val="${__TOOLBOX_DEPENDENCY_STACK[i]}"
+  for i in "${!__TOOLBOX_LOADING_STACK[@]}"; do
+    local val="${__TOOLBOX_LOADING_STACK[i]}"
     if [[ "$val" != "$module_name" ]]; then
       tempAry+=("$val")
     fi
   done
-  export __TOOLBOX_DEPENDENCY_STACK=("${tempAry[@]}")
+  export __TOOLBOX_LOADING_STACK=("${tempAry[@]}")
 }
 
 
@@ -88,7 +88,7 @@ __utb_load_module() {
 
   # error if circular dependency
   if __utb_module_is_circular "$module_name"; then
-    echo "error: circular dependency: ${__TOOLBOX_DEPENDENCY_STACK[@]} $module_name" >&2
+    echo "error: circular dependency: ${__TOOLBOX_LOADING_STACK[@]} $module_name" >&2
     __TOOLBOX_EXIT_CODE=1
     return $__TOOLBOX_EXIT_CODE
   fi
