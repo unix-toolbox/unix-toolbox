@@ -48,9 +48,9 @@ that are needed to initialize the module in a user's terminal session.
 ### Loading a Module
 Add the following to e.g. `.bashrc`, `.zshrc` or a module's `deps.sh` file:
 ```bash
-utb load module-name
+utb load <module-name>
 # or more verbose:
-utb load-module module-name
+utb load-module <module-name>
 ```
 
 Exit code `10` means that the module could not be loaded due to a circular dependency.
@@ -65,6 +65,8 @@ steps:
    I.e. the function starts with `__utb_command_` and all dashes (`-`) are translated to underscores (`_`).
 1. Register the command: `utb load-command my-awesome-command`
 1. Invoke your custom command like this: `utb my-awesome-command`
+1. Optional: create an alias: `utb alias-command mac my-awesome-command`
+1. Optional: invoke your custom command using the alias: `utb mac`
 
 Exit code `10` means that the command was already registered.
 Exit code `11` means that the associated function could not be found, hence the
