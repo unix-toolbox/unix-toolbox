@@ -10,8 +10,10 @@ __utb_command_load_module() {
   # skip if module was already loaded
   # NOTE: this is not considered an error and expected to occur often
   if utb_util_array_contains '__TOOLBOX_LOADED_MODULES' "$module_name"; then
+    utb_util_verbose 'load-module' "$module_name (skip)"
     return $__TOOLBOX_EXIT_CODE
   fi
+  utb_util_verbose 'load-module' "$module_name (new)"
 
   # error if circular dependency
   if utb_util_array_contains '__TOOLBOX_LOADING_STACK' "$module_name"; then
@@ -25,11 +27,17 @@ __utb_command_load_module() {
 
   # load module dependencies
   local module_dependency_path="$TOOLBOX_MODULES/$module_name/deps.sh"
-  [[ $__TOOLBOX_EXIT_CODE == 0 && -f $module_dependency_path ]] && source "$module_dependency_path"
+  if [[ $__TOOLBOX_EXIT_CODE == 0 && -f $module_dependency_path ]]; then
+    utb_util_verbose 'load-module' "source $module_name/deps.sh"
+    source "$module_dependency_path"
+  fi
 
   # load module
   local module_load_path="$TOOLBOX_MODULES/$module_name/load.sh"
-  [[ $__TOOLBOX_EXIT_CODE == 0 && -f $module_load_path ]] && source "$module_load_path"
+  if [[ $__TOOLBOX_EXIT_CODE == 0 && -f $module_load_path ]]; then
+    utb_util_verbose 'load-module' "source $module_name/load.sh"
+    source "$module_load_path"
+  fi
 
   # set module loaded
   utb_util_array_remove '__TOOLBOX_LOADING_STACK' "$module_name"

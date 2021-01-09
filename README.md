@@ -1,6 +1,16 @@
 # Unix Toolbox
 > A brave attempt to create a modular system for managing dotfiles, shell scripts, settings and other customizations.
 
+## Dependencies
+The goal of Unix Toolbox is to be usable from both bash and zsh
+(as long as a recent enough version of bash is installed).
+
+Unix Toolbox is being developed on bash version `5.0.17(1)-release`.
+Your milage may vary with other versions of bash.
+
+All shell files use the following shebang: `#!/usr/bin/env bash`.
+So zsh should properly delegate execution to bash.
+
 ## Install
 Clone this repository: `git clone https://github.com/unix-toolbox/unix-toolbox.git $HOME/path/to/install/location`
 
@@ -83,3 +93,18 @@ Commands are free to assign their own meaning to exit codes starting from number
 Unix Toolbox will properly pass down any exit codes to the calling shell.
 
 > See also: https://tldp.org/LDP/abs/html/exitcodes.html
+
+## Debugging
+To facilitate debugging, you can set `TOOLBOX_VERBOSE=1`.
+All subsequent calls to `utb_util_verbose` will be printed to standard output.
+
+Each indentation represents a nested call to the public api.
+(E.g. if `utb load my-mod` is called, all associated messages will be indented by one tab.
+If `my-mod` has a dependency on `awesome-mod`, all those messages will be indented by two tabs, etc.) 
+
+The colored part represents the scope of the message (usually the command's full name).
+It is possible to show only messages from certain scopes, e.g.:
+
+```bash
+TOOLBOX_VERBOSE=(execute-command load-module)
+```

@@ -16,6 +16,7 @@ __utb_cmd_to_func() {
 # return: 0 (success), 10 (command already registered), 11 (function not found)
 __utb_command_load_command() {
   local command="$1"
+  utb_util_verbose 'load-command' "$command"
 
   # load command only once
   if utb_util_array_contains '__TOOLBOX_LOADED_COMMANDS' "$command"; then
@@ -40,8 +41,9 @@ __utb_command_load_command() {
 __utb_command_alias_command() {
   local alias="$1"
   local command="$2"
+  utb_util_verbose 'alias-command' "$alias -> $command"
   local alias_function_name=$(__utb_cmd_to_func "$alias")
   local command_function_name=$(__utb_cmd_to_func "$command")
-  eval "$alias_function_name() { $command_function_name \$@ ; }"
+  eval "$alias_function_name() { utb_util_verbose 'execute-alias' '$alias -> $command'; $command_function_name \$@ ; }"
   __utb_command_load_command "$alias"
 }

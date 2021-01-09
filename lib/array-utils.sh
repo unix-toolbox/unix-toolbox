@@ -22,6 +22,7 @@ utb_util_array_add() {
 }
 
 
+# remove all occurrences of <value-to-remove> from the array
 # input: <name-of-array-variable> <value-to-remove>
 utb_util_array_remove() {
   declare -n array_ref="$1"
@@ -34,4 +35,15 @@ utb_util_array_remove() {
     fi
   done
   array_ref=("${tempAry[@]}")
+}
+
+
+# remove last value from array and return it
+# input: <name-of-array-variable>
+# stdout: <removed-value>
+utb_util_array_pop() {
+  declare -n array_ref="$1"
+  local value="${array_ref[-1]}"
+  unset array_ref[-1]
+  printf "$value"
 }
